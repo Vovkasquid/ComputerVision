@@ -17,6 +17,7 @@
 using namespace std;
 
 cv::VideoCapture cap(0);
+//Перехват изображения
 class RobotCamera : private noncopyable {
 public:
 
@@ -37,7 +38,7 @@ public:
     static cv::Mat getImageFromFile() {
         using namespace cv;
 
-        Mat src = imread("/home/dima/my/pic/triangle/1.jpg");
+        Mat src = imread("/home/vladimir-notebook/triangle");
         if (src.data == 0) {
             myLog << "can`t read image";
         }
@@ -51,6 +52,7 @@ enum class Shape {
     Circle,
     NoShape
 };
+//Распознавание образа
 class ShapeDetector : private noncopyable {
 public:
     static double threshold;
@@ -64,16 +66,16 @@ public:
         GaussianBlur(grayImage, grayImage, Size(9, 9), 2, 2);
 
         if(findCircle(grayImage) == true) {
-            //debugShowImage(grayImage);
+            debugShowImage(grayImage);
             return Shape::Circle;
         }
 
         Canny(grayImage, grayImage, threshold/3, threshold, 3);
         dilate(grayImage, grayImage, Mat(), Point(-1,-1));
 
-        //debugShowImage(grayImage);
+        debugShowImage(grayImage);
 
-        //waitKey(0);
+        waitKey(0);
 
         vector<vector<Point> > contours;
         findContours(grayImage, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
@@ -89,22 +91,22 @@ public:
                 continue;
             }
 
-            //drawContours(inputImage, contours, i, Scalar(0, 0, 255), 10);
-            //debugShowImage(inputImage);
-            //waitKey(0);
+            drawContours(inputImage, contours, i, Scalar(0, 0, 255), 10);
+            debugShowImage(inputImage);
+            waitKey(0);
 
             if (approx.size() == 3) {
                 drawContours(inputImage, contours, i, Scalar(0, 0, 255), 10);
                 myLog << approx.size() << " triangle ";
 
-                //debugShowImage(inputImage);
+                debugShowImage(inputImage);
                 return Shape::Triangle;
             }
             else if (approx.size() == 4) {
                 drawContours(inputImage, contours, i, Scalar(0, 0, 255), 10);
                 myLog << approx.size() << " square ";
 
-                //debugShowImage(inputImage);
+                debugShowImage(inputImage);
                 return Shape::Square;
             }
         }
@@ -118,14 +120,14 @@ public:
         vector<Vec3f> circles;
         HoughCircles(inputGrayImage, circles, CV_HOUGH_GRADIENT, 1, inputGrayImage.rows / 8, threshold, 100, 50, 0);
 
-        //debugShowImage(inputGrayImage);
+        debugShowImage(inputGrayImage);
 
         for(size_t i = 0; i < circles.size(); i++) {
             Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
             int radius = cvRound(circles[i][2]);
 
             circle(inputGrayImage, center, radius, Scalar(0, 0, 255), 20, 8, 0);
-            //debugShowImage(inputGrayImage);
+            debugShowImage(inputGrayImage);
             myLog << "circle";
         }
 
@@ -137,14 +139,14 @@ public:
     }
 
     static int debugShowImage(cv::Mat image) {
-        //using namespace cv;
+        using namespace cv;
 
-        //namedWindow("image", WINDOW_NORMAL);
-        //imshow("image", image);
+        namedWindow("image", WINDOW_NORMAL);
+        imshow("image", image);
 
-        //imwrite("test.jpg", image);
+        imwrite("test.jpg", image);
 
-        //waitKey(0);
+        uj8 bwaitKey(0);
         return 0;
     }
 };
@@ -231,7 +233,7 @@ private slots:
         }
 
         QString shape;
-        switch (ShapeDetector::recognizeShape(RobotCamera::getImageFromCamera())) {
+        switch (ShapeDetector::recognizeShape(RobotCamera::getImageFromFile))) {
         case Shape::Circle:
             shape = "круг";
             break;
